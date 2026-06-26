@@ -35,29 +35,38 @@ We implemented a strictly manual, step-by-step **White-Box Preprocessing Approac
 
 Following the **CRISP-DM** methodology, our pipeline was built with a rigid 80/20 stratified holdout validation split. 
 
-```text
-Raw Data (13,560 customers, 41 features)
-    │
-    ▼
-Holdout Validation ──── Stratified 80/20 train/validation split (anti-leakage foundation)
-    │
-    ▼
-Exploratory Data Analysis ──── Target signal, Missing patterns, Feature redundancies
-    │
-    ▼
-White-Box Preprocessing ──── Explicit Fit/Transform (Imputation, Scaling, Encoding)
-    │
-    ▼
-Feature Selection ──── Variance Threshold ➔ Correlation Redundancy ➔ Mutual Information
-    │
-    ▼
-Model Screening ──── 8 Algorithms evaluated (Probabilistic, Linear, Tree, Ensemble)
-    │
-    ▼
-Hyperparameter Tuning ──── Random & Grid Search (5-fold CV)
-    │
-    ▼
-Final Model ──── Stacking Ensemble (Optimized threshold via TunedThresholdClassifierCV)
+```mermaid
+flowchart TD
+    Data[(Raw Data <br/> 13,560 records, 41 features)] --> Holdout[Holdout Validation <br/> Stratified 80/20 Split]
+    Holdout --> EDA[Exploratory Data Analysis]
+    
+    EDA --> Preprocessing[White-Box Preprocessing <br/> Explicit Fit/Transform]
+    Preprocessing -.-> Impute[Imputation]
+    Preprocessing -.-> Log[Log-Transforms]
+    Preprocessing -.-> Scale[Robust Scaling]
+    Preprocessing -.-> Encode[Encoding]
+    
+    Preprocessing --> FS[Feature Selection]
+    FS -.-> Var[Variance Threshold]
+    FS -.-> Corr[Correlation Redundancy]
+    FS -.-> MI[Mutual Information]
+    
+    FS --> Screening[Model Screening <br/> 8 Algorithms Evaluated]
+    Screening --> Tuning[Hyperparameter Tuning <br/> Random & Grid Search 5-fold CV]
+    
+    Tuning --> ErrorComp{Error Complementarity <br/> Base Model Selection}
+    ErrorComp --> LR[Logistic Regression]
+    ErrorComp --> GB[Gradient Boosting]
+    ErrorComp --> DT[Decision Tree]
+    ErrorComp --> GNB[Gaussian NB]
+    
+    LR --> Stacking{Stacking Meta-Learner <br/> passthrough=True}
+    GB --> Stacking
+    DT --> Stacking
+    GNB --> Stacking
+    
+    Stacking --> Threshold[TunedThresholdClassifierCV <br/> Cut-off Optimization]
+    Threshold --> Deployed(((Deployed Ensemble <br/> F1 = 0.416)))
 ```
 
 **Robust Selection (Mitigating Optimization Bias):**
