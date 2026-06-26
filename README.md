@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="banner.png" width="100%" alt="Data Science Project Banner">
+</div>
+
 # Reach for Change: Predicting Donor Response for Social Good
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
@@ -107,6 +111,9 @@ To guarantee total transparency and absolute control over data leakage, this pro
 # Clone the repository
 git clone https://github.com/diogovasconcelosmerca/Reach-for-Change-Donor-Prediction.git
 cd Reach-for-Change-Donor-Prediction
+
+# Install required dependencies
+pip install -r requirements.txt
 
 # Open the Jupyter Notebook
 jupyter notebook Reach_for_Change_Predicting_Donor_Response.ipynb
