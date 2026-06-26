@@ -100,6 +100,21 @@ Our feature selection phase calculated a **maximum Mutual Information score of 0
 
 ---
 
+## 📊 6. Business Implications & Strategic Recommendations
+
+In the Open-Ended Analysis, we reframed the model from a technical F1 score to a **business tool for the CSA**, yielding three major strategic takeaways:
+
+**1. The Decision Threshold is a Business Lever:**
+A missed donor (false negative) is far costlier than a wasted contact (false positive, like a cheap email). Our chosen operating point (Threshold = 0.41) aggressively favors **Recall (0.82)**, ensuring the CSA captures the vast majority of the donor base while accepting the low marginal cost of extra contacts. If the CSA switches to expensive physical mail, the threshold can be raised to favor precision without retraining the model.
+
+**2. Errors are Structural, not Fixable by Modeling:**
+Error analysis revealed that the model reliably identifies card-responsive donors but struggles with high-value, card-inactive ones. Because these profiles overlap heavily with non-donors in the available feature space, this is a structural limit of the data, not a deficiency in the ensemble. 
+
+**3. Practical Recommendation:**
+The Stacking Ensemble should be deployed as a **prioritization tool, not a hard filter**. It effectively ranks individuals by donation propensity, allowing the CSA to target the highest-probability segments. To break the `0.42` F1 ceiling, the CSA must enrich its database with richer behavioral or transactional features, as census-level area attributes proved near-irrelevant.
+
+---
+
 ## 💻 Tech Stack & Run Instructions
 
 **Libraries:** `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `scipy`.
