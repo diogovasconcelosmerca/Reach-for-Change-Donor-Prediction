@@ -1,7 +1,3 @@
-<div align="center">
-  <img src="banner.png" width="100%" alt="Data Science Project Banner">
-</div>
-
 # Reach for Change: Predicting Donor Response for Social Good
 
 ![Python](https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white)
@@ -10,42 +6,34 @@
 ![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-F37626?logo=jupyter&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Completed-brightgreen)
 
-## Project Overview
-
-**Civic Support Alliance (CSA)** project aimed at transitioning from mass-solicitation outreach to a data-driven targeted strategy. By replacing untargeted solicitations with a robust machine learning model, we optimize outreach efficiency and fundamentally reduce donor fatigue.
-
 > **Academic Context:** Data Mining II, Master's in Data Science & Advanced Analytics (BI) — Nova IMS (2025/2026)
 
 ---
 
-## 🎯 Business Problem & Objective
+## 🎯 1. Business Problem & Metric Selection
 
-Despite the growing number of charitable causes, repeated and untargeted solicitations have led to **donor fatigue**, reducing engagement and long-term support for humanitarian initiatives. 
+The **Civic Support Alliance (CSA)** seeks to modernize its outreach strategy by transitioning from traditional mass-solicitation to a data-driven targeted strategy. The goal is to identify individuals most likely to donate, maximizing campaign efficiency while minimizing **donor fatigue**.
 
-The primary goal is to develop a **supervised learning classification model** to predict donor response. This enables the CSA to focus outreach efforts on high-probability leads, maximising campaign efficiency while minimising unnecessary contact and donor disengagement.
-
-**Research Question:**
-> *"Based on historical and demographic profiles, what is the probability of a specific individual donating if contacted during this campaign?"*
-
----
-
-## 🚀 Key Results & Performance
-
-Because accuracy is uninformative under high class imbalance (a majority predictor achieves ~75% accuracy by identifying 0 donors), **F1-score** was used as the primary evaluation metric.
-
-| Model / Metric | Outcome |
-|:-------:|---------|
-| **Final Deployed Model** | Stacking Ensemble with passthrough and optimized decision threshold |
-| **Validation F1-Score** | `0.416` (optimized threshold = `0.415`, yielding a +0.035 improvement over the default cut-off) |
-| **Kaggle Public Score** | `0.423` F1-score (perfectly aligned with validation, zero overfitting) |
-
-> **Analytic Conclusion:** Extensive sensitivity analysis proved the task is **data-limited** (max mutual information of 0.014), meaning the achieved F1 score reflects the dataset's inherent predictability ceiling rather than a model constraint.
+**The Fallacy of Accuracy:**
+With a **75/25 class imbalance** skewed toward non-donors, a baseline model predicting "No Donation" for everyone would achieve ~75% accuracy, rendering this metric completely uninformative. 
+To rigorously evaluate model performance, we optimized for the **F1-Score**, perfectly balancing false positives (wasted outreach costs) and false negatives (missed donation opportunities).
 
 ---
 
-## 🛠️ Methodology
+## 🔍 2. The "White-Box" Approach (Academic Transparency)
 
-The project strictly follows the **CRISP-DM** methodology with a rigorous anti-leakage protocol:
+A foundational architectural decision in this project was the deliberate exclusion of the `sklearn.pipeline.Pipeline` wrapper. In an academic context, it is critical to demonstrate mechanical control over data transformations.
+
+We implemented a strictly manual, step-by-step **White-Box Preprocessing Approach**:
+- Every step (Invalid handling ➔ Imputation ➔ Feature Engineering ➔ Log-transforms ➔ Scaling ➔ Encoding) was explicitly fitted on the training set and subsequently applied to the validation set.
+- This exposed intermediate states (e.g., imputer medians, robust scaler IQRs) for real-time diagnostic inspection.
+- It provided absolute, mathematically verifiable protection against **data leakage**.
+
+---
+
+## ⚙️ 3. Methodology & Model Screening
+
+Following the **CRISP-DM** methodology, our pipeline was built with a rigid 80/20 stratified holdout validation split. 
 
 ```text
 Raw Data (13,560 customers, 41 features)
@@ -57,7 +45,7 @@ Holdout Validation ──── Stratified 80/20 train/validation split (anti-le
 Exploratory Data Analysis ──── Target signal, Missing patterns, Feature redundancies
     │
     ▼
-White-Box Preprocessing ──── Imputation, Log-transforms, Robust Scaling, Encoding
+White-Box Preprocessing ──── Explicit Fit/Transform (Imputation, Scaling, Encoding)
     │
     ▼
 Feature Selection ──── Variance Threshold ➔ Correlation Redundancy ➔ Mutual Information
@@ -66,46 +54,43 @@ Feature Selection ──── Variance Threshold ➔ Correlation Redundancy ➔
 Model Screening ──── 8 Algorithms evaluated (Probabilistic, Linear, Tree, Ensemble)
     │
     ▼
-Hyperparameter Tuning ──── Random & Grid Search with robust selection + Threshold Optimization
+Hyperparameter Tuning ──── Random & Grid Search (5-fold CV)
     │
     ▼
-Final Model ──── Stacking Ensemble (F1 = 0.416, optimized cut-off at 0.415)
+Final Model ──── Stacking Ensemble (Optimized threshold via TunedThresholdClassifierCV)
 ```
 
----
-
-## 🔍 The "White-Box" Preprocessing Approach
-
-To guarantee total transparency and absolute control over data leakage, this project deliberately avoids the use of `sklearn.pipeline.Pipeline` wrappers. Instead, we implemented a rigorous **White-Box Preprocessing Approach**:
-
-- **Explicit Transformations:** Every step (missing value imputation, log-transformations, robust scaling, and categorical encodings) is explicitly fitted on the training set and subsequently applied to the validation set.
-- **Intermediate State Inspection:** This transparency allows us to inspect intermediate states (e.g., imputer medians, encoder vocabularies, variance matrices) that are typically hidden inside a black-box Pipeline.
-- **Manual Anti-Leakage:** By manually enforcing the strict separation of `fit` and `transform` steps, we demonstrate a deeper, fundamental understanding of data science mechanics and prevent implicit data leakage, ensuring maximum model integrity.
+**Robust Selection (Mitigating Optimization Bias):**
+To combat Cross-Validation Optimization Bias (Cawley & Talbot, 2010), we employed a robust selection mechanism. Instead of blindly accepting the GridSearchCV winner, we compared the default screening model, the Random Search winner, and the Grid Search winner on the untouched validation set, ensuring maximum generalizability.
 
 ---
 
-## 🧠 Skills Demonstrated
+## 🧠 4. Stacking Ensemble via Complementary Errors
 
-- **Machine Learning Architecture** — Stacking Ensembles, Hyperparameter Tuning (Random/Grid Search).
-- **Data Preprocessing & Feature Engineering** — RFM Framework, Log-transformations, Robust Scaling.
-- **Imbalanced Data Handling** — Threshold Optimization (`TunedThresholdClassifierCV`), Stratified K-Fold CV, Class Weighting.
-- **Feature Selection** — Variance Thresholds, Correlation Redundancy (Theil's U, Spearman), Mutual Information.
-- **Anti-Leakage Protocols** — White-box manual preprocessing avoiding black-box Pipeline dependencies.
+The final deployed architecture is a **Stacking Classifier**. 
+Crucially, the base estimators (Logistic Regression, Gradient Boosting, Decision Tree, Gaussian Naive Bayes) were not selected arbitrarily. They were chosen based on the principle of **Error Complementarity** (Kuncheva & Whitaker, 2003). 
 
----
-
-## 💻 Tech Stack
-
-| Category | Tools |
-|----------|-------|
-| **Language** | Python 3 |
-| **Machine Learning** | scikit-learn (StackingClassifier, TunedThresholdClassifierCV, RF, GBM, etc.), scipy |
-| **Data Manipulation** | pandas, NumPy |
-| **Visualization** | Matplotlib, Seaborn |
+By analyzing the Pearson correlation between the validation error vectors of the screened models, we selected a diverse cohort of algorithms where *one model's weakness is compensated by another's strength*. This theoretically grounded ensemble achieved significantly greater stability than any individual learner.
 
 ---
 
-## ⚙️ How to Run
+## 🚀 5. Key Results & The "Data-Limited" Conclusion
+
+| Evaluation | Metric Result |
+|:-------:|---------|
+| **Validation F1-Score** | `0.416` (optimized cut-off at `0.415`, yielding +0.035 improvement over default) |
+| **Kaggle Public Score** | `0.423` F1-score (Confirming absolute zero overfitting) |
+
+**The "Data-Limited" Paradox:**
+An extensive sensitivity analysis (sweeping alternative architectures, regularization schemes, and feature subsets) revealed that all variants converged near `F1 ≈ 0.41`. 
+
+Our feature selection phase calculated a **maximum Mutual Information score of 0.014**, providing mathematical proof that this task is fundamentally **Data-Limited**. The achieved F1-score represents the absolute ceiling of predictability inherent in the data itself, rather than a constraint of the machine learning architecture.
+
+---
+
+## 💻 Tech Stack & Run Instructions
+
+**Libraries:** `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `scipy`.
 
 ```bash
 # Clone the repository
@@ -115,19 +100,8 @@ cd Reach-for-Change-Donor-Prediction
 # Install required dependencies
 pip install -r requirements.txt
 
-# Open the Jupyter Notebook
+# Open the complete analysis pipeline
 jupyter notebook Reach_for_Change_Predicting_Donor_Response.ipynb
-```
-
----
-
-## 📁 Project Structure
-
-```text
-Reach_for_Change_DataMining/
-├── README.md
-├── .gitignore
-└── Reach_for_Change_Predicting_Donor_Response.ipynb   # Complete ML Pipeline & Analysis
 ```
 
 ---
