@@ -72,6 +72,12 @@ Crucially, the base estimators (Logistic Regression, Gradient Boosting, Decision
 
 By analyzing the Pearson correlation between the validation error vectors of the screened models, we selected a diverse cohort of algorithms where *one model's weakness is compensated by another's strength*. This theoretically grounded ensemble achieved significantly greater stability than any individual learner.
 
+<div align="center">
+  <img src="assets/error_correlation.png" width="80%" alt="Error Correlation Matrix">
+  <br>
+  <em>Figure: Pearson correlation of error vectors on the validation set. Lower correlation indicates higher complementarity.</em>
+</div>
+
 ---
 
 ## 🚀 5. Key Results & The "Data-Limited" Conclusion
@@ -80,6 +86,12 @@ By analyzing the Pearson correlation between the validation error vectors of the
 |:-------:|---------|
 | **Validation F1-Score** | `0.416` (optimized cut-off at `0.415`, yielding +0.035 improvement over default) |
 | **Kaggle Public Score** | `0.423` F1-score (Confirming absolute zero overfitting) |
+
+<div align="center">
+  <img src="assets/confusion_matrices.png" width="100%" alt="Confusion Matrices: Default vs Optimized Threshold">
+  <br>
+  <em>Figure: Impact of threshold optimization on the Stacking Ensemble's Confusion Matrix, significantly boosting True Positives.</em>
+</div>
 
 **The "Data-Limited" Paradox:**
 An extensive sensitivity analysis (sweeping alternative architectures, regularization schemes, and feature subsets) revealed that all variants converged near `F1 ≈ 0.41`. 
