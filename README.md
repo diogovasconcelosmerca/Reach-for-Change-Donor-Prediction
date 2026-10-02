@@ -6,7 +6,7 @@
 ![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-F37626?logo=jupyter&logoColor=white)
 ![Status](https://img.shields.io/badge/Status-Completed-brightgreen)
 
-> **Academic Context:** Data Mining II, Master's in Data Science & Advanced Analytics (BI) — Nova IMS (2025/2026)
+> **Academic Context:** Data Mining II, MSc Information Management (Business Intelligence) — Nova IMS (2025/2026)
 
 ---
 
